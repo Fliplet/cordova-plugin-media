@@ -252,7 +252,7 @@ BOOL keepAvAudioSessionAlwaysActive = NO;
           BOOL isPlaying = NO;
 
           if (audioFile.player) {
-            isPlaying = [audioFile.player isPlaying] && [self.currMediaId isEqualToString:mediaId];
+            isPlaying = [audioFile.player isPlaying];
           } else {
             isPlaying = (self->avPlayer.rate > 0 && !self->avPlayer.error) && [self.currMediaId isEqualToString:mediaId];
           }
