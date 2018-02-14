@@ -318,6 +318,12 @@ public class AudioHandler extends CordovaPlugin {
      * @param file				The name of the audio file.
      */
     public void startPlayingAudio(String id, String file) {
+        for (AudioPlayer player: this.players.values()) {
+            if (player.getState() == AudioPlayer.STATE.MEDIA_RUNNING.ordinal()) {
+                player.stopPlaying();
+            }
+        }
+
         AudioPlayer audio = getOrCreatePlayer(id, file);
         audio.startPlaying(file);
         getAudioFocus();
