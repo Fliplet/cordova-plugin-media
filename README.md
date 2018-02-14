@@ -65,7 +65,7 @@ cordova plugin add cordova-plugin-media
 ## Media
 
 ```js
-var media = new Media(src, mediaSuccess, [mediaError], [mediaStatus]);
+var media = new Media(src, mediaSuccess, [mediaError], [mediaStatus], [mediaCreated], id);
 ```
 
 ### Parameters
@@ -77,6 +77,10 @@ var media = new Media(src, mediaSuccess, [mediaError], [mediaStatus]);
 - __mediaError__: (Optional) The callback that executes if an error occurs. _(Function)_
 
 - __mediaStatus__: (Optional) The callback that executes to indicate status changes. _(Function)_
+
+- __mediaCreated__: (Optional) The callback that executes after the media object is created. _(Function)_
+
+- __id__: (Optional) A media object ID, to load a previously created media object. _(DOMString)_
 
 __NOTE__: `cdvfile` path is supported as `src` parameter:
 ```javascript
