@@ -243,7 +243,27 @@ BOOL keepAvAudioSessionAlwaysActive = NO;
     NSString* mediaId = [command argumentAtIndex:0];
     NSString* resourcePath = [command argumentAtIndex:1];
 
-    CDVAudioFile* audioFile = [self audioFileForResource:resourcePath withId:mediaId doValidation:YES forRecording:NO suppressValidationErrors:YES];
+    CDVAudioFile* audioFile = nil;
+
+    if ([self soundCache] != nil) {
+        audioFile = [[self soundCache] objectForKey:mediaId];
+
+        if (audioFile != nil) {
+          BOOL isPlaying = NO;
+
+          if (audioFile.player) {
+            isPlaying = [audioFile.player isPlaying] && [self.currMediaId isEqualToString:mediaId];
+          } else {
+            isPlaying = (self->avPlayer.rate > 0 && !self->avPlayer.error) && [self.currMediaId isEqualToString:mediaId];
+          }
+
+          CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:isPlaying];
+          [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+          return;
+        }
+    }
+
+    audioFile = [self audioFileForResource:resourcePath withId:mediaId doValidation:YES forRecording:NO suppressValidationErrors:YES];
 
     if (audioFile == nil) {
         NSString* errorMessage = [NSString stringWithFormat:@"Failed to initialize Media file with path %@", resourcePath];
@@ -267,8 +287,6 @@ BOOL keepAvAudioSessionAlwaysActive = NO;
 
             //avPlayer = [[AVPlayer alloc] initWithURL:resourceUrl];
         }
-
-        self.currMediaId = mediaId;
 
         CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
@@ -835,7 +853,7 @@ BOOL keepAvAudioSessionAlwaysActive = NO;
 {
     /* https://issues.apache.org/jira/browse/CB-11513 */
     NSMutableArray* keysToRemove = [[NSMutableArray alloc] init];
-    
+
     for(id key in [self soundCache]) {
         CDVAudioFile* audioFile = [[self soundCache] objectForKey:key];
         if (audioFile != nil) {
@@ -847,9 +865,9 @@ BOOL keepAvAudioSessionAlwaysActive = NO;
             }
         }
     }
-    
+
     [[self soundCache] removeObjectsForKeys:keysToRemove];
-    
+
     // [[self soundCache] removeAllObjects];
     // [self setSoundCache:nil];
     [self setAvSession:nil];
@@ -865,19 +883,7 @@ BOOL keepAvAudioSessionAlwaysActive = NO;
 
 - (void)onReset
 {
-    for (CDVAudioFile* audioFile in [[self soundCache] allValues]) {
-        if (audioFile != nil) {
-            if (audioFile.player != nil) {
-                [audioFile.player stop];
-                audioFile.player.currentTime = 0;
-            }
-            if (audioFile.recorder != nil) {
-                [audioFile.recorder stop];
-            }
-        }
-    }
 
-    [[self soundCache] removeAllObjects];
 }
 
 - (void)getCurrentAmplitudeAudio:(CDVInvokedUrlCommand*)command
