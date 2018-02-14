@@ -164,7 +164,9 @@ public class AudioHandler extends CordovaPlugin {
         else if (action.equals("create")) {
             String id = args.getString(0);
             String src = FileHelper.stripFileProtocol(args.getString(1));
-            getOrCreatePlayer(id, src);
+            AudioPlayer ret = getOrCreatePlayer(id, src);
+            boolean isPlaying = (ret.getState() == AudioPlayer.STATE.MEDIA_RUNNING.ordinal());
+            callbackContext.sendPluginResult(new PluginResult(status, isPlaying));
         }
         else if (action.equals("release")) {
             boolean b = this.release(args.getString(0));
@@ -206,7 +208,7 @@ public class AudioHandler extends CordovaPlugin {
      */
     @Override
     public void onReset() {
-        onDestroy();
+        //onDestroy();
     }
 
     /**
