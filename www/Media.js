@@ -46,6 +46,10 @@ cordova.define("cordova-plugin-media.Media", function (require, exports, module)
 
         if (mediaId) {
             this.id = mediaId;
+            if (mediaObjects[this.id]) {
+                this.node = mediaObjects[this.id].node;
+                this._status = mediaObjects[this.id]._status;
+            }
         } else {
             this.id = utils.createUUID();
         }
@@ -75,9 +79,30 @@ cordova.define("cordova-plugin-media.Media", function (require, exports, module)
     Media.MEDIA_STOPPED = 4;
     Media.MEDIA_MSG = ["None", "Starting", "Running", "Paused", "Stopped"];
 
+    // "static" function to create an object instance.
+    Media.createItem = function (src, successCallback, errorCallback, statusCallback, createCallback, mediaId, onIdCallback) {
+        var newMedia = new Media(src, successCallback, errorCallback, statusCallback, createCallback, mediaId);
+
+        if (onIdCallback) {
+            onIdCallback(newMedia.id);
+        }
+    };
+
     // "static" function to return existing objs.
     Media.get = function (id) {
         return mediaObjects[id];
+    };
+
+    // "static" function to return existing obj list.
+    Media.getAll = function () {
+        return mediaObjects;
+    };
+
+    // "static" function to play an item.
+    Media.playItem = function (id) {
+        if (mediaObjects[id]) {
+            mediaObjects[id].play();
+        }
     };
 
     /**
@@ -85,6 +110,13 @@ cordova.define("cordova-plugin-media.Media", function (require, exports, module)
      */
     Media.prototype.play = function (options) {
         exec(null, null, "Media", "startPlayingAudio", [this.id, this.src, options]);
+    };
+
+    // "static" function to stop an item.
+    Media.stopItem = function (id) {
+        if (mediaObjects[id]) {
+            mediaObjects[id].stop();
+        }
     };
 
     /**
