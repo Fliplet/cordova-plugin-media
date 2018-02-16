@@ -93,6 +93,13 @@ cordova.define("cordova-plugin-media.Media", function (require, exports, module)
         return mediaObjects[id];
     };
 
+    // "static" function to return existing objs.
+    Media.getAsync = function (id, getCallback) {
+        if(getCallback) {
+            getCallback(mediaObjects[id]);
+        }
+    };
+
     // "static" function to return existing obj list.
     Media.getAll = function () {
         return mediaObjects;
@@ -129,6 +136,13 @@ cordova.define("cordova-plugin-media.Media", function (require, exports, module)
         }, this.errorCallback, "Media", "stopPlayingAudio", [this.id]);
     };
 
+     // "static" function to seek on an item.
+     Media.seekItem = function (id, milliseconds) {
+        if (mediaObjects[id]) {
+            mediaObjects[id].seekTo(milliseconds);
+        }
+    };
+
     /**
      * Seek or jump to a new time in the track..
      */
@@ -139,11 +153,25 @@ cordova.define("cordova-plugin-media.Media", function (require, exports, module)
         }, this.errorCallback, "Media", "seekToAudio", [this.id, milliseconds]);
     };
 
+    // "static" function to pause an item.
+    Media.pauseItem = function (id) {
+        if (mediaObjects[id]) {
+            mediaObjects[id].pause();
+        }
+    };
+
     /**
      * Pause playing audio file.
      */
     Media.prototype.pause = function () {
         exec(null, this.errorCallback, "Media", "pausePlayingAudio", [this.id]);
+    };
+
+    // "static" function to get the duration of an item.
+    Media.getDurationOfItem = function (id, getCallback) {
+        if (mediaObjects[id] && getCallback) {
+            getCallback(mediaObjects[id].getDuration());
+        }
     };
 
     /**
@@ -154,6 +182,13 @@ cordova.define("cordova-plugin-media.Media", function (require, exports, module)
      */
     Media.prototype.getDuration = function () {
         return this._duration;
+    };
+
+    // "static" function to get the position of an item.
+    Media.getItemCurrentPosition = function (id, success, fail) {
+        if (mediaObjects[id]) {
+            mediaObjects[id].getCurrentPosition(success, fail);
+        }
     };
 
     /**
@@ -195,11 +230,25 @@ cordova.define("cordova-plugin-media.Media", function (require, exports, module)
         exec(null, this.errorCallback, "Media", "resumeRecordingAudio", [this.id]);
     };
 
+    // "static" function to release an item.
+    Media.releaseItem = function (id) {
+        if (mediaObjects[id]) {
+            mediaObjects[id].release();
+        }
+    };
+
     /**
      * Release the resources.
      */
     Media.prototype.release = function () {
         exec(null, this.errorCallback, "Media", "release", [this.id]);
+    };
+
+    // "static" function to set the volume of an item.
+    Media.setItemVolume = function (id, volume) {
+        if (mediaObjects[id]) {
+            mediaObjects[id].setVolume(volume);
+        }
     };
 
     /**
@@ -217,6 +266,13 @@ cordova.define("cordova-plugin-media.Media", function (require, exports, module)
             exec(null, null, "Media", "setRate", [this.id, rate]);
         } else {
             console.warn('media.setRate method is currently not supported for', cordova.platformId, 'platform.');
+        }
+    };
+
+    // "static" function to get the amplitude of an item.
+    Media.getItemAmplitude = function (id, success, fail) {
+        if (mediaObjects[id]) {
+            mediaObjects[id].getCurrentAmplitude(success, fail);
         }
     };
 
